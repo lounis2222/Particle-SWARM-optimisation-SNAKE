@@ -1,0 +1,180 @@
+
+close all;
+clear all;
+clc;
+
+
+IMG_1= double(imread('snake_color/snake_0000.png'));  % lire la première image
+% couleur de la séquence et la convertir en double.
+
+Nbr_Particles=100; % je définis le Nom_IMGbre de particules à insérer dans l'image:
+
+% Maintenant je crée une boucle qui me permettra d'initialiser les
+% coordonnées de chaque particule en parcourant ces dernières, ainsi que
+% pour la dfinition de la couleur bleu pour celles-ci:
+
+for i = 1:Nbr_Particles % Je parcours toutes les particules, c'est à dire que je détermine 
+   % pour chaque particule les coordonnées:
+   
+   % j'ai choisis la fonction 'randi' pour donner des valeurs aleatoires auc 
+   % coordonnées de mes particules, elles sont comprises entre 1 et 200:
+   
+   p(1,i)=randi(200); % POUR la première coordonnée de la particule i ( en x), 
+   p(2,i)=randi(200); % POUR la deuxième coordonnée de la particule i ( en y)
+   p(3,i)=1; % POUR la troisuème coordonnée de la particule i ( en z)
+   
+   % initialisation de la coleur en bleu :
+   % Vu que je vais traiter des images en couleurs, on est donc dans le
+   % système RGB, ce qui fait que je vais définir la couleurs des
+   % particules en bleu dans l'image.
+   IMG_1(p(1,i),p(2,i),1)=0;  % dans le plan rouge on a bien la valeur 0
+   IMG_1(p(1,i),p(2,i),2)=0;  % dans le plan VERT on a bien la valeur 0
+   IMG_1(p(1,i),p(2,i),3)=255; % dans le plan BLEU on a bien la valeur 255
+   
+end
+ 
+k=0; 
+ 
+for sequence_IMG = 1:1018  % on parcourt toute la séquence d'images:
+    
+% Traiter les Nom_IMGs de fichiers des images à lire
+if(sequence_IMG<10)
+    Nom_IMG = sprintf('./snake_color/snake_000%d.png',sequence_IMG);  % pour les images de 0 jusqu'a 9 c'est à dire les 10 première images
+elseif(sequence_IMG<100)
+    Nom_IMG = sprintf('./snake_color/snake_00%d.png',sequence_IMG);   % pour les images de 10 jusqu'a 99 
+elseif (sequence_IMG<1000)
+    Nom_IMG = sprintf('./snake_color/snake_0%d.png',sequence_IMG);    % pour les images de 100 jusqu'a 999 
+else 
+    Nom_IMG=sprintf('./snake_color/snake_%d.png',sequence_IMG);    % pour le reste des images à partir de l'image 999
+end
+   
+Nom_IMG1=['',Nom_IMG]; 
+img_t=double(imread(Nom_IMG1));  % Lire une image de la séquence à chaque itération.
+
+if(k==1)    
+   for i = 1:Nbr_Particles
+        p(1,i)=randi(200);
+        p(2,i)=randi(200);
+        p(3,i)=1;
+   end
+   k=0;
+end
+
+% Particule en x
+% Creation du tableau de valeur pour la particule
+  
+    % Boucle de prediction pour la position de la particule
+    for i=1:Nbr_Particles        
+        % On à " r " qui est le Nom_IMGbres d'évolutions possibles du serpent entre t et t+1
+        % c'est à dire soit: haut, bas , gauche, droite.
+        
+        evol = round(1+3.*rand); % génerer à chaque itération un Nom_IMGbre
+        % aléatoire entre 1 et 4 qui correspond au 4 évolutions possibles
+        % di serpent entre les 2 instants.
+        % ces Nom_IMGbres aléatoires seront donc arrindies vers la fin soit
+        % vers : 1  ou 2 ou 3 ou 4 selon leur valeurs.
+
+        if(p(1,i)>=2 && p(1,i)<=(Nbr_Particles-2) && p(2,i)>=2 && p(2,i)<=(Nbr_Particles-2))
+        % Si la coordonnée "x" de la particule i est entre 2 et 198 et si
+        % La coordonnée "y" de la particule i est entre 2 et 198:
+        
+            if(evol==1) % Si le serpent suit la première évolution ce qui veut
+            % dire qu'il bouge vers la droite dans le sens positif de l'axe
+            % des abcisses (x).
+                p(1,i)= p(1,i)+1; 
+            end 
+            
+            
+            if(evol==2) % Si le serpent suit la deuxième évolution ce qui veut
+            % dire qu'il bouge vers le haut dans le sens positif de l'axe 
+            % des ordonnées (y).
+                p(2,i)=p(2,i)+1;     
+            end 
+            
+            
+            if(evol==3)% Si le serpent suit la troisième évolution ce qui veut
+            % dire qu'il bouge vers la gauche dans le sens négatif de l'axe
+            % des abcisses (-x).
+                p(1,i)=p(1,i)-1;
+            end
+            
+            
+            if(evol==4) % Si le serpent suit la quatrième évolution ce qui veut
+            % dire qu'il bouge vers le bas dans le sens négatif de l'axe 
+            % des ordonnées (-y).
+                p(2,i)=p(2,i)-1;
+                % il bouge vers la bas dans le sens négatif 
+                % de l'axe des ordonnées (-y)
+            end 
+            
+          
+        end
+          
+    end
+    
+    
+    for i=1:Nbr_Particles % Les particules parcourent l'image:
+        
+        
+        if img_t(p(1,i), p(2,i),1)==255  % si dans le plan rouge de l'image
+            % rgb on a une couleur de pixel 255 (bleu), ce qui veut dire 
+            % Qu'il n'y a pas de diffèrence de pixels entre ceux du serpent
+            % et ceux de la particule. Autrement dit, si le pixel est rouge 
+            % à la position de l état estimé ( le serpent est détecté)
+            p(3,i)=1; % la fonction de mesure renvoie 1
+
+            
+        else
+            p(3,i)=0; % la fonction de mesure renvoie 0( le serpent 
+            % n'est pas détecté)
+        end 
+
+    end
+    
+
+        
+    % maintenant dans le cas ou le serpent n'est pas détecté, on va effectuer 
+    % la correction pour les particules qui n'ont pas détecté le serpent et 
+    % les tendre vers ce dernier:
+   
+ if(p(3,:)==0) % si toutes les particules n'ont pas détecté le serpent:
+        k=1; % ce qui va impliquer le changement des coordonnées des particules,
+        % en générant de nouvelles coordonnées.
+ end
+
+for i=1:Nbr_Particles
+    if(p(3,i)==1) % Si le serpent est détecté:
+        for j=1:Nbr_Particles 
+            if(p(3,j)==0) % On ramène toutes les autres particules qui n'ont
+                % pas detecté le serpent vers celles qui l'ont detecté
+                % et leur affectant les valeurs des coordonnées de ces dernières.
+                p(1,j)=p(1,i); % la particule j qui n'avait pas détecté le 
+                % serpent prendra la valeur de la coordonnée "x" de la
+                % particule "i" qui a réussi à détecter ce dernier.
+                
+                p(2,j)=p(2,i);% la particule j qui n'avait pas détecté le 
+                % serpent prendra la valeur de la coordonnée "y" de la
+                % particule "i" qui a réussi à détecter ce dernier.
+                
+                p(3,j)=p(3,i); % il sera ainsi égal à 1 vers la fin ce qui
+                % dire que la particule qui n'avait pas détecté le serpent 
+                % a été déplacé et l'a donc détécté cette fois-ci.
+                break
+            end 
+        end
+    end 
+    
+    % je vais définir la couleurs des particules en bleu dans l'image.
+    
+    img_t(p(1,i),p(2,i),1)=0;  % dans le plan rouge on a bien la valeur 0
+    img_t(p(1,i),p(2,i),2)=0;  % dans le plan VERT on a bien la valeur 0
+    img_t(p(1,i),p(2,i),3)=255; % dans le plan BLEU on a bien la valeur 255
+   
+end
+
+imshow(img_t); % afficher 1 image à chaque itération du serpent avec les
+% Particules qui l"ont détecté et ce jusqu'à la fin de séquence d'image
+pause(0.0000002)
+
+end 
+
